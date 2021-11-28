@@ -21,7 +21,7 @@
 			<div class="headN flexC fl-end">				               
 				<a href="Projects.html" class="hda flexC"><img src="images/icon/hdI02.png"><p>Projects</p></a>
 				<a href="Staking.html" class="hda flexC change-t"><img src="images/icon/hdI03.png"><p>Staking</p><div class="showT" style="display:none;">Waiting</div></a>
-				<a href="javascript:;" class="hda flexC"><img src="images/icon/hdI01.png"><p>Connect Wallet</p></a>	
+				<a href="javascript:connect()" class="hda flexC"><img src="images/icon/hdI01.png"><p id="wallet" >Connect Wallet</p></a>	
 			</div>
 		</div>
 	</header>
@@ -269,6 +269,33 @@
 
 
 </body>
+<script src="js/ethers-5.0.umd.min.js" type="application/javascript"></script>
+<script src="js/detect-provider.min.js"></script>
+<script type="text/javascript">
+	async function connect() {
+		const provider = await detectEthereumProvider()
+	    const messageNode = document.getElementById('wallet')
+	    const { ethers } = window.ethers
+	    if (provider) {
+	      !provider.isConnected() &&  await window.ethereum.enable()
+	      await provider.send("eth_requestAccounts", []);
+	      const web3Provider = new ethers.providers.Web3Provider(window.ethereum)
+	      let balance = await web3Provider.getBalance(window.ethereum.selectedAddress);
+	      messageNode.innerHTML = ` 0x${window.ethereum.selectedAddress.slice(38,42)} ${(balance/1000000000000000000).toFixed(2)}BNB `
+	    } else {
+	      messageNode.innerText = "No MetaMask Detected - please install the extension"
+	    }
+
+	    window.ethereum.on('accountsChanged', (accounts) => {
+	      window.location.reload()
+	    })
+	}
+
+	$(document).ready(function(){ 	
+		connect()
+	})
+	
+</script>
 <script type="text/javascript" src="https://cdn.dowebok.com/131/js/wow.min.js"></script>
 <script language="JavaScript" type="text/JavaScript">
 new WOW().init(); 
